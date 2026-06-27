@@ -1,0 +1,1126 @@
+{
+  "name": "Player Advisor",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Player Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "Type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "RHB"
+                  },
+                  {
+                    "option": "LHB"
+                  },
+                  {
+                    "option": "RF"
+                  },
+                  {
+                    "option": "LF"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Performance",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "5"
+                  },
+                  {
+                    "option": "4"
+                  },
+                  {
+                    "option": "3"
+                  },
+                  {
+                    "option": "2"
+                  },
+                  {
+                    "option": "1"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        160
+      ],
+      "id": "0a71123c-e136-49cd-acbb-f232a6b71e19",
+      "name": "On form submission",
+      "webhookId": "244fe188-4f4c-453e-9f0a-4fa9709a51f1"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app38zUFfJ2Y5tZJg",
+          "mode": "list",
+          "cachedResultName": "n8n_n",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWJWYQO0Z1b47VY",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg/tblWJWYQO0Z1b47VY"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Performance": "={{ $json.Performance }}",
+            "Name": "={{ $json.Name }}",
+            "Type": "={{ $json.Type }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "RHB",
+                  "value": "RHB"
+                },
+                {
+                  "name": "LHB",
+                  "value": "LHB"
+                },
+                {
+                  "name": "RF",
+                  "value": "RF"
+                },
+                {
+                  "name": "LF",
+                  "value": "LF"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Performance",
+              "displayName": "Performance",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Item Need",
+              "displayName": "Item Need",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Advice by AI",
+              "displayName": "Advice by AI",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        160
+      ],
+      "id": "4bd8e08e-c455-4ad3-84db-6211b4d46d34",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FHFZmCpfHhj0w86U",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.fields.Type }}",
+                    "rightValue": "RHB",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d1930f59-3656-490d-943e-2259ed9a1960"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0ef9396c-fbdc-449a-bcdd-44b679fdb271",
+                    "leftValue": "={{ $json.fields.Type }}",
+                    "rightValue": "LHB",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a21c6af9-3fc4-4d2a-8c55-c74e002e7f46",
+                    "leftValue": "={{ $json.fields.Type }}",
+                    "rightValue": "RF",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a246bdc2-c624-44d9-aab6-49dc339179a7",
+                    "leftValue": "={{ $json.fields.Type }}",
+                    "rightValue": "LF",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        128
+      ],
+      "id": "d53111b8-5a32-478d-8d70-2995b3c01e58",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app38zUFfJ2Y5tZJg",
+          "mode": "list",
+          "cachedResultName": "n8n_n",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWJWYQO0Z1b47VY",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg/tblWJWYQO0Z1b47VY"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create a record').item.json.id }}",
+            "Type": "RHB",
+            "Item Need": "Bat"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "RHB",
+                  "value": "RHB"
+                },
+                {
+                  "name": "LHB",
+                  "value": "LHB"
+                },
+                {
+                  "name": "RF",
+                  "value": "RF"
+                },
+                {
+                  "name": "LF",
+                  "value": "LF"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Performance",
+              "displayName": "Performance",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Item Need",
+              "displayName": "Item Need",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Advice by AI",
+              "displayName": "Advice by AI",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "90b3e748-d032-4ead-9232-0c9541d3e283",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FHFZmCpfHhj0w86U",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app38zUFfJ2Y5tZJg",
+          "mode": "list",
+          "cachedResultName": "n8n_n",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWJWYQO0Z1b47VY",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg/tblWJWYQO0Z1b47VY"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create a record').item.json.id }}",
+            "Type": "LHB",
+            "Item Need": "Bat"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "RHB",
+                  "value": "RHB"
+                },
+                {
+                  "name": "LHB",
+                  "value": "LHB"
+                },
+                {
+                  "name": "RF",
+                  "value": "RF"
+                },
+                {
+                  "name": "LF",
+                  "value": "LF"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Performance",
+              "displayName": "Performance",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Item Need",
+              "displayName": "Item Need",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Advice by AI",
+              "displayName": "Advice by AI",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        64
+      ],
+      "id": "a53817b2-5ef5-41db-86e2-82ec4030383f",
+      "name": "Update record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FHFZmCpfHhj0w86U",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app38zUFfJ2Y5tZJg",
+          "mode": "list",
+          "cachedResultName": "n8n_n",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWJWYQO0Z1b47VY",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg/tblWJWYQO0Z1b47VY"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create a record').item.json.id }}",
+            "Type": "RF",
+            "Item Need": "Bowl"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "RHB",
+                  "value": "RHB"
+                },
+                {
+                  "name": "LHB",
+                  "value": "LHB"
+                },
+                {
+                  "name": "RF",
+                  "value": "RF"
+                },
+                {
+                  "name": "LF",
+                  "value": "LF"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Performance",
+              "displayName": "Performance",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Item Need",
+              "displayName": "Item Need",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Advice by AI",
+              "displayName": "Advice by AI",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        256
+      ],
+      "id": "e96f795d-13aa-48a5-bde7-e92870618812",
+      "name": "Update record2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FHFZmCpfHhj0w86U",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app38zUFfJ2Y5tZJg",
+          "mode": "list",
+          "cachedResultName": "n8n_n",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWJWYQO0Z1b47VY",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg/tblWJWYQO0Z1b47VY"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create a record').item.json.id }}",
+            "Type": "LF",
+            "Item Need": "Bowl"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "RHB",
+                  "value": "RHB"
+                },
+                {
+                  "name": "LHB",
+                  "value": "LHB"
+                },
+                {
+                  "name": "RF",
+                  "value": "RF"
+                },
+                {
+                  "name": "LF",
+                  "value": "LF"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Performance",
+              "displayName": "Performance",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Item Need",
+              "displayName": "Item Need",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Advice by AI",
+              "displayName": "Advice by AI",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        448
+      ],
+      "id": "9f0837f7-6af2-4d39-9556-f064b67538eb",
+      "name": "Update record3",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FHFZmCpfHhj0w86U",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Make a rhyming one line single sentence advice on the basis of the item need to make improvement in their performance\nDon't give multiple sentences\n\n\nAdvice on  the basis of:\nItem Needed: {{ $json.fields['Item Need'] }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        896,
+        160
+      ],
+      "id": "649b74dd-8eb7-4c1f-87e2-620b75da6dee",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        384
+      ],
+      "id": "14fb66f5-a806-46eb-8126-c6264b4bf77b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1BBMt2zzPKAEChZJ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app38zUFfJ2Y5tZJg",
+          "mode": "list",
+          "cachedResultName": "n8n_n",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWJWYQO0Z1b47VY",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/app38zUFfJ2Y5tZJg/tblWJWYQO0Z1b47VY"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create a record').item.json.id }}",
+            "Advice by AI": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "RHB",
+                  "value": "RHB"
+                },
+                {
+                  "name": "LHB",
+                  "value": "LHB"
+                },
+                {
+                  "name": "RF",
+                  "value": "RF"
+                },
+                {
+                  "name": "LF",
+                  "value": "LF"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Performance",
+              "displayName": "Performance",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Item Need",
+              "displayName": "Item Need",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Advice by AI",
+              "displayName": "Advice by AI",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        160
+      ],
+      "id": "86b65043-e508-4ce7-a8de-b78bb5a9db1c",
+      "name": "Update record4",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "FHFZmCpfHhj0w86U",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update record1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update record2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update record3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Update record4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "55bc63f7-b739-4ea5-a97d-52e20894e379",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e10fd7b6339a895c21a0eac0d330dd70e912ecf4849166ab387da548fd7b3997"
+  },
+  "nodeGroups": [],
+  "id": "vVhCZQaSRqirdj2D",
+  "tags": []
+}
