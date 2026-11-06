@@ -1,0 +1,430 @@
+{
+  "name": "Instant Inquiry Responder",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "clinic-inquiry",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "ee75da37-a49d-44ef-a9c8-3fbb226e2ace",
+      "name": "Webhook",
+      "webhookId": "03d58433-3fc0-4e8a-b5d9-ff50c6e090d2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1A5yYfL7zl_jZG9RYYLLHRHBrmVodzw8EAfaNbITz30o",
+          "mode": "list",
+          "cachedResultName": "Clinic Patient Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A5yYfL7zl_jZG9RYYLLHRHBrmVodzw8EAfaNbITz30o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1228892503,
+          "mode": "list",
+          "cachedResultName": "Inquiries",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A5yYfL7zl_jZG9RYYLLHRHBrmVodzw8EAfaNbITz30o/edit#gid=1228892503"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now.toFormat('yyyy-MM-dd HH:mm') }}",
+            "Name": "={{ $json.body.name }}",
+            "Email": "={{ $json.body.email }}",
+            "Phone": "={{ $json.body.phone }}",
+            "Message": "={{ $json.body.message }}",
+            "ReplySent": "NO",
+            "LeadScore": "Hot"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ReplySent",
+              "displayName": "ReplySent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "LeadScore",
+              "displayName": "LeadScore",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c399e28c-977b-4560-bdfe-f0618a212f74",
+      "name": "Append row in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HHU1tNDc1yoSrKTr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Patient name: {{ $('Webhook').item.json.body.name }}\nTheir message: {{ $('Webhook').item.json.body.message }}\nTheir phone: {{ $('Webhook').item.json.body.phone }}",
+        "options": {
+          "systemMessage": "You are a professional patient coordinator at Dr. HH Healthcare Clinic. \n\nYour task is to write ONLY the body paragraphs for an inquiry response email.\n\nSTRICT CONSTRAINTS:\n1. Do NOT include any greetings (e.g., \"Dear...\", \"Hi...\", patient names).\n2. Do NOT include any sign-offs or signatures (e.g., \"Best regards...\", \"Patient Care Team\").\n3. Do NOT use markdown, subject lines, or headers.\n4. Output EXACTLY 2 clean paragraphs wrapped in HTML <p> tags.\n5. Acknowledge their message, state that the team will reach out within 2 hours during business hours, and provide +923361346226 for urgent matters. Keep under 100 words."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "99222658-7c2e-460f-abd8-42faa371bf26",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama3:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        528,
+        240
+      ],
+      "id": "9b559d7d-04f7-40f8-a1fb-2dfe118c3c90",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "qd1F4TnYNKOxmjNe",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.email }}",
+        "subject": "=Thank you for contacting Dr. HH Healthcare Clinic, {{ $('Webhook').item.json.body.name }}",
+        "message": "=<p>Dear {{ $('Webhook').item.json.body.name }},</p>\n\n{{ $json.cleanBody }}\n\n<br>\n<p>Best regards,<br>\n<strong>Patient Care Team</strong><br>\nDr. HH Healthcare Clinic</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "2354ae7e-a878-4cee-b4f8-b79803938280",
+      "name": "Send a message",
+      "webhookId": "70254f7a-6f5b-4e6d-b72e-8111ededd057",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SxcNZ6pGq7G4F8E3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1A5yYfL7zl_jZG9RYYLLHRHBrmVodzw8EAfaNbITz30o",
+          "mode": "list",
+          "cachedResultName": "Clinic Patient Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A5yYfL7zl_jZG9RYYLLHRHBrmVodzw8EAfaNbITz30o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1228892503,
+          "mode": "list",
+          "cachedResultName": "Inquiries",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A5yYfL7zl_jZG9RYYLLHRHBrmVodzw8EAfaNbITz30o/edit#gid=1228892503"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ReplySent": "YES",
+            "Email": "={{ $('Webhook').item.json.body.email }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ReplySent",
+              "displayName": "ReplySent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "LeadScore",
+              "displayName": "LeadScore",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "7c88a794-9a0b-4942-a3b3-310fa15977cb",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HHU1tNDc1yoSrKTr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get raw LLM output\nlet text = $input.item.json.output || \"\";\n\n// Remove any leading name pattern (e.g., \"Ali Test, \", \"Dear Ali Test, \", \"Ali, \")\ntext = text.replace(/^({{\\ $('Webhook').item.json.body.name }}|Dear\\s+.*?,?|.*?,)\\s*/i, '');\n\n// Capitalize the first letter of the remaining text\ntext = text.charAt(0).toUpperCase() + text.slice(1);\n\nreturn [{ json: { cleanBody: text } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "69662664-0236-4872-9ca0-04ba2385ca12",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e98b05d9-2cd0-4fa7-96e2-95abcb78ff3a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2efb3ab5880506c84c611a1c2fad8bf5e19060a522c85089040bd4e31f59dc1e"
+  },
+  "nodeGroups": [],
+  "id": "kxJ842aiW3rLvv3B",
+  "tags": []
+}

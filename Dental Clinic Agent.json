@@ -1,0 +1,579 @@
+{
+  "name": "Dental Clinic Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "huzaifas.back@gmail.com",
+          "mode": "list",
+          "cachedResultName": "huzaifas.back@gmail.com"
+        },
+        "timeMin": "={{ $json.start }}",
+        "timeMax": "={{ $json.end }}",
+        "options": {
+          "recurringEventHandling": "expand",
+          "timeZone": {
+            "__rl": true,
+            "value": "Asia/Karachi",
+            "mode": "list",
+            "cachedResultName": "Asia/Karachi"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        112
+      ],
+      "id": "234bd28c-c5b9-44bc-b369-2baaf04dcd96",
+      "name": "Get many events",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "uzyLoLwLBAqQihEd",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7f4fd857-13cf-42f1-8d71-8f0948f929aa",
+              "leftValue": "={{ $json.slotAvailable }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        112
+      ],
+      "id": "eeaebfa5-9a9a-4b38-bb78-9c6a61cd6a8c",
+      "name": "If",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        112
+      ],
+      "id": "4a1c8341-7a60-4d92-9789-1b67e4a8deb5",
+      "name": "Receive Booking Request",
+      "webhookId": "a780a788-7326-4dcf-8dea-2b673ec9ed0a"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "huzaifas.back@gmail.com",
+          "mode": "list",
+          "cachedResultName": "huzaifas.back@gmail.com"
+        },
+        "start": "={{ $('Parse Vapi Data').item.json.start }}",
+        "end": "={{ $('Parse Vapi Data').item.json.end }}",
+        "additionalFields": {
+          "description": "=Patient: {{ $('Parse Vapi Data').item.json.patientName }}\nDOB: {{ $('Parse Vapi Data').item.json.dateOfBirth }}\nPhone: {{ $('Parse Vapi Data').item.json.phone }}\nEmail: {{ $('Parse Vapi Data').item.json.email }}",
+          "summary": "={{ $('Parse Vapi Data').item.json.patientName }} - {{ $('Parse Vapi Data').item.json.appointmentType }} - {{ $('Parse Vapi Data').item.json.email }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        16
+      ],
+      "id": "00ffd5a1-955c-41e1-b4e8-d55fce29a8fe",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "uzyLoLwLBAqQihEd",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI",
+          "mode": "list",
+          "cachedResultName": "Appointment Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Appointment Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $('Parse Vapi Data').item.json.patientName }}",
+            "Date of Birth": "={{ $('Parse Vapi Data').item.json.dateOfBirth }}",
+            "Phone Number": "={{ $('Parse Vapi Data').item.json.phone }}",
+            "Appointment": "={{ $('Parse Vapi Data').item.json.appointmentType }}",
+            "Provider": "={{ $('Parse Vapi Data').item.json.provider }}",
+            "Start": "={{ $('Parse Vapi Data').item.json.start.replace('T', ' ').split('+')[0] }}",
+            "End": "={{ $('Parse Vapi Data').item.json.end.replace('T', ' ').split('+')[0] }}",
+            "Email": "={{ $('Parse Vapi Data').item.json.email.replace('T', ' ').split('+')[0] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date of Birth",
+              "displayName": "Date of Birth",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Appointment",
+              "displayName": "Appointment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Provider",
+              "displayName": "Provider",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Start",
+              "displayName": "Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "End",
+              "displayName": "End",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1344,
+        16
+      ],
+      "id": "cb5214c2-d180-4980-bf4e-d06c994b04e2",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ljpvfof2lthCCJPH",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ee817e55-9477-4a0d-a122-45eab44afdfe",
+              "name": "Success",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "e788f0a0-a987-46da-bf36-49f45ff5da20",
+              "name": "Message",
+              "value": "Selected slot is already booked.",
+              "type": "string"
+            },
+            {
+              "id": "3739b95f-4c3a-4a7a-9906-97a16e701d91",
+              "name": "Available",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        208
+      ],
+      "id": "7d045b9f-fad1-4f1d-b036-a15be839ef5d",
+      "name": "Event unavailable"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "=\n{\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Parse Vapi Data').first().json.toolCallId }}\",\n      \"result\": \"Great news! Your {{ $('Parse Vapi Data').first().json.appointmentType }} appointment with {{ $('Parse Vapi Data').first().json.provider }} has been successfully booked. We have you down for {{ new Date($('Parse Vapi Data').first().json.start).toLocaleDateString('en-US', {timeZone: 'Asia/Karachi', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) }} at {{ new Date($('Parse Vapi Data').first().json.start).toLocaleTimeString('en-US', {timeZone: 'Asia/Karachi', hour: 'numeric', minute: '2-digit', hour12: true}) }}. Please arrive 15 minutes early and bring your photo ID. Is there anything else I can help you with?\"\n    }\n  ]\n}\n",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2016,
+        16
+      ],
+      "id": "0691bee9-5a95-4455-bdb6-5cc2f94ac075",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Parse Vapi Data').first().json.toolCallId }}\",\n      \"result\": \"I'm sorry, that time slot is no longer available. Could you suggest another date or time that works for you? I would be happy to check availability.\"\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1344,
+        208
+      ],
+      "id": "8b608340-ff58-499d-acd5-367cea88dbe6",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "24585a21-01ed-493a-8ad6-fbae3d255f1e",
+              "name": "success",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "e41b8f03-5b8a-4e2e-a071-2bc58e6079fe",
+              "name": "message",
+              "value": "Appointment booked successfully",
+              "type": "string"
+            },
+            {
+              "id": "219c0478-24bf-435f-ac40-e2fb6f641e18",
+              "name": "patient",
+              "value": "={{ $('Parse Vapi Data').item.json.patientName }}",
+              "type": "string"
+            },
+            {
+              "id": "43563d6f-90ea-45fe-8c60-c48161472d65",
+              "name": "provider",
+              "value": "={{ $('Parse Vapi Data').item.json.provider }}",
+              "type": "string"
+            },
+            {
+              "id": "879059e1-9c37-48cd-a22b-4c4dbd5379d2",
+              "name": "appointmentType",
+              "value": "={{ $('Parse Vapi Data').item.json.appointmentType }}",
+              "type": "string"
+            },
+            {
+              "id": "4ff22b5d-73c6-481e-ab7d-61fb63354c71",
+              "name": "start",
+              "value": "={{ $('Parse Vapi Data').item.json.start }}",
+              "type": "string"
+            },
+            {
+              "id": "69e28a2e-17e7-450f-989a-d6eb0555ce29",
+              "name": "end",
+              "value": "={{ $('Parse Vapi Data').item.json.end }}",
+              "type": "string"
+            },
+            {
+              "id": "c3ad6c50-df59-4c3e-a351-64714b98246a",
+              "name": "email",
+              "value": "={{ $('Parse Vapi Data').item.json.email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1792,
+        16
+      ],
+      "id": "c85a6486-f3b5-4900-b5be-59438783f168",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst input = $input.first().json;\nconst body = input.body ?? input;\nconst message = body.message ?? {};\n\nconst toolCall =\n  message.toolCallList?.[0] ??\n  message.toolCalls?.[0] ??\n  {};\n\nlet args =\n  toolCall.function?.['arguments'] ??\n  toolCall['arguments'] ??\n  body;\n\nif (typeof args === 'string') {\n  args = JSON.parse(args);\n}\n\nfunction preserveTimezone(value) {\n  if (!value) return '';\n\n  // Keep an existing timezone offset or Z unchanged.\n  // Add +05:00 only if the timestamp has no timezone.\n  if (/[+-]\\d{2}:\\d{2}$/.test(value) || /Z$/i.test(value)) {\n    return value;\n  }\n\n  return value + '+05:00';\n}\n\nreturn [{\n  json: {\n    toolCallId: toolCall.id ?? '',\n    patientName: args.patientName ?? '',\n    dateOfBirth: args.dateOfBirth ?? '',\n    phone: args.phone ?? '',\n    email: args.email ?? '',\n    appointmentType: args.appointmentType ?? '',\n    provider: args.provider ?? '',\n    start: preserveTimezone(args.start ?? ''),\n    end: preserveTimezone(args.end ?? '')\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        112
+      ],
+      "id": "6125c016-4698-4628-a68c-1faac878c829",
+      "name": "Parse Vapi Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $input.all();\n\n// If any event has a real ID, slot is taken\nconst slotTaken = events.some(item => item.json && item.json.id);\n\nreturn [{\n  json: {\n    slotAvailable: !slotTaken\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        112
+      ],
+      "id": "088703b3-fc89-4a7a-b06c-602af98842a6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Parse Vapi Data').item.json.email }}",
+        "subject": "Appointment Confirmation - Smile Dental Clinic",
+        "emailType": "text",
+        "message": "=Hello {{ $('Parse Vapi Data').item.json.patientName }},\n\nThank you for scheduling your appointment with Smile Dental Clinic.\n\nYour appointment has been successfully confirmed.\n\nAppointment Details:\nPatient: {{ $('Parse Vapi Data').item.json.patientName }}\nAppointment Type: {{ $('Parse Vapi Data').item.json.appointmentType }}\nProvider: {{ $('Parse Vapi Data').item.json.provider }}\nDate: {{ DateTime.fromISO($('Parse Vapi Data').item.json.start).setZone('Asia/Karachi').toFormat('EEEE, MMMM d, yyyy') }}\nTime: {{ DateTime.fromISO($('Parse Vapi Data').item.json.start).setZone('Asia/Karachi').toFormat('h:mm a') }} - {{ DateTime.fromISO($('Parse Vapi Data').item.json.end).setZone('Asia/Karachi').toFormat('h:mm a') }}\n\nPlease arrive 15 minutes before your appointment and bring your photo ID and insurance card if applicable.\n\nIf you need to reschedule or cancel your appointment, please contact Smile Dental Clinic.\n\nThank you,\nSmile Dental Clinic\nRiley – Virtual Receptionist",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        16
+      ],
+      "id": "65a8ece6-1edb-4460-8e2c-e7e711dcf94a",
+      "name": "Send a message",
+      "webhookId": "7b9d04ee-8637-4e98-90d4-3e38ab208557",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eR61FBp8xgL3fqYS",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Event unavailable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Booking Request": {
+      "main": [
+        [
+          {
+            "node": "Parse Vapi Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event unavailable": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Vapi Data": {
+      "main": [
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f35c62d6-82a0-4b56-8a2e-fe681cb48b10",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2efb3ab5880506c84c611a1c2fad8bf5e19060a522c85089040bd4e31f59dc1e"
+  },
+  "nodeGroups": [],
+  "id": "jOS9V1Qrz9QgrtS5",
+  "tags": []
+}

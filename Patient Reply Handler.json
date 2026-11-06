@@ -1,0 +1,231 @@
+{
+  "name": "Patient Reply Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-reply",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2955cbbc-9fa4-4a78-8662-c18500b3592c",
+      "name": "Webhook",
+      "webhookId": "7fcf9e0c-a2b3-4f6b-808b-ebca44d1acf8"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Read this patient's WhatsApp reply and classify it as POSITIVE, NEGATIVE, or NEUTRAL. Reply with ONE word only.\n\nPatient reply: {{ $json.body.data.body }}",
+        "options": {
+          "systemMessage": "You are an AI sentiment classifier. Your task is to analyze patient messages and respond with strictly ONE word: POSITIVE, NEGATIVE, or NEUTRAL. Do not include punctuation, greetings, or extra text."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c1c6bbe5-45ee-4445-9a4b-17cdda84abc1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama3:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "9fd80526-4a2a-4589-8595-6da691e28fb0",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "qd1F4TnYNKOxmjNe",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.trim().toUpperCase() === 'NEGATIVE' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "e6b66b66-1c08-4459-b768-35a48df0bbad"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "68764c9a-fbe7-4c6d-ac48-3e948eebd1ad",
+                    "leftValue": "={{ $json.output.trim().toUpperCase() === 'POSITIVE' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        592,
+        0
+      ],
+      "id": "97e8f5f9-0b6a-41c1-a1d4-a0755eba0b7d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "hhclinic.agent@gmail.com",
+        "subject": "=⚠️ Patient Follow-Up Alert — {{ $('Webhook').item.json.body.data.pushname || 'Patient' }}",
+        "emailType": "text",
+        "message": "=Patient {{ $('Webhook').item.json.body.data.pushname || 'Patient' }} ({{ $('Webhook').item.json.body.data.from.replace('@c.us', '') }}) reported a concern after their appointment.\n\nTheir message: \"{{ $('Webhook').item.json.body.data.body }}\"\n\nPlease follow up promptly.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        -96
+      ],
+      "id": "988591e6-e7b8-4691-9ba4-58d51019058b",
+      "name": "Send a message",
+      "webhookId": "511d1cc4-2ef5-4858-b1d2-e3c506aac9a2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SxcNZ6pGq7G4F8E3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ultramsg.com/instance188607/messages/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"token\": \"cqb4j7pjk92zrda4\",\n  \"to\": \"{{ $('Webhook').item.json.body.data.from }}\",\n  \"body\": \"So glad to hear you're doing well, {{ $('Webhook').item.json.body.data.pushname || 'there' }}! 😊\\n\\nIf you have a moment, we'd really appreciate a Google review — it helps other patients find us:\\n[https://forms.gle/rCsQ9jfQ11SZtrug6]\\n\\nThank you for choosing Dr. HH Healthcare Clinic! 🙏\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        816,
+        96
+      ],
+      "id": "304c33f8-c918-4a87-bbd5-7eb8dfb05c46",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "55fc09dd-c69b-4ef1-80ff-8c8e078ae543",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2efb3ab5880506c84c611a1c2fad8bf5e19060a522c85089040bd4e31f59dc1e"
+  },
+  "nodeGroups": [],
+  "id": "Grz7Y6aciEAlePMB",
+  "tags": []
+}

@@ -1,0 +1,224 @@
+{
+  "name": "Whatsapp Buddy",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "WhatsappBuddy",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -48
+      ],
+      "id": "d8ff6d46-20f1-4ef5-8482-91891f3fed5a",
+      "name": "Webhook",
+      "webhookId": "e86302d1-ebe7-49da-b027-a8fa57d04389",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "={{ $('If').item.json.body.instance }}",
+        "remoteJid": "={{ $('If').item.json.body.data.key.remoteJid }}",
+        "messageText": "={{ $json.output }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        912,
+        112
+      ],
+      "id": "2e6fecbc-7eae-4846-8b69-47d3c2d97571",
+      "name": "Enviar texto",
+      "credentials": {
+        "evolutionApi": {
+          "id": "WD4W8DZElPiveNEr",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e594eff7-8e48-49ce-8448-eb0182595da8",
+              "leftValue": "={{ $json.body.data.key.fromMe }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        -48
+      ],
+      "id": "68fbf9a0-ae22-48f0-860c-3e087bfa99ff",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        576,
+        -192
+      ],
+      "id": "0481b2a8-e795-48bd-bc49-b6f7eb3ce7d6",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=This is the user message: {{ $json.body.data.message.conversation }}",
+        "options": {
+          "systemMessage": "=You are helpful assistant You will reply to the user query in the professional, soft tone and smartest way possible but in 1 sentence please don't extend sentence further."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        512,
+        112
+      ],
+      "id": "11d5a69a-ac46-41e6-8c4f-afa09d931a1e",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.data.key.remoteJid }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        592,
+        336
+      ],
+      "id": "d1cc4a67-be30-4ad8-ab20-50d314ddef21",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "=llama3",
+        "options": {
+          "think": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        256,
+        352
+      ],
+      "id": "edd4ea4e-5c54-48ef-9ef2-fbc5928002ca",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "qd1F4TnYNKOxmjNe",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7c3fcaa7-e66b-487f-a64c-2655f24e63b4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2efb3ab5880506c84c611a1c2fad8bf5e19060a522c85089040bd4e31f59dc1e"
+  },
+  "nodeGroups": [],
+  "id": "jVJ8giTBk4dYTLKv",
+  "tags": []
+}

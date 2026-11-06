@@ -1,0 +1,470 @@
+{
+  "name": "Cancel workflow --",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Cancelc",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        96
+      ],
+      "name": "Webhook",
+      "id": "44fa898c-fdab-436a-81f3-e827efd8d872",
+      "webhookId": "e204bc94-554a-4609-94cf-e867149abb73"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI",
+          "mode": "list",
+          "cachedResultName": "Appointment Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Appointment Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Phone Number",
+              "lookupValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -448,
+        96
+      ],
+      "name": "Get row(s) in sheet",
+      "id": "3e6c472c-cc1f-4d0e-bcc3-385a31e54f4c",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ljpvfof2lthCCJPH",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0ab673c4-b4fb-4970-87c4-952b752b1de6",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        96
+      ],
+      "name": "If",
+      "id": "93a21b37-e404-47fa-af07-e80a8f17fe42"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({results:[{toolCallId: $(\"Parse Vapi Data\").first().json.toolCallId, result:\"I could not find a matching appointment for that phone number. No appointment was cancelled.\"}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        192
+      ],
+      "name": "Respond to Webhook",
+      "id": "1a1e959d-f1dc-4232-904b-de814ba3d43a"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "huzaifas.back@gmail.com",
+          "mode": "list",
+          "cachedResultName": "huzaifas.back@gmail.com"
+        },
+        "timeMin": "={{ DateTime.fromISO($('Parse Vapi Data').first().json.start).minus({minutes:1}).toISO() }}",
+        "timeMax": "={{ DateTime.fromISO($('Parse Vapi Data').first().json.end).plus({minutes:1}).toISO() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Get many events",
+      "alwaysOutputData": true,
+      "id": "acaf07a6-de1b-4e6e-99b5-d1b0120985a3",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "uzyLoLwLBAqQihEd",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body ?? $input.first().json;\nconst call = body.message?.toolCallList?.[0] ?? body.message?.toolCalls?.[0] ?? {};\nlet args = call.function?.['arguments'] ?? call['arguments'] ?? body;\nif (typeof args === 'string') args = JSON.parse(args);\nconst start = String(args.start ?? args.appointmentStart ?? '');\nconst end = String(args.end ?? '');\nif (!start || !end || !Number.isFinite(Date.parse(start)) || !Number.isFinite(Date.parse(end))) {\n  throw new Error('Cancellation requires valid start and end ISO timestamps with timezone.');\n}\nif (Date.parse(end) <= Date.parse(start)) throw new Error('End must be after start');\nif (!args.patientName || !args.phone) throw new Error('Missing patient name or phone');\nreturn [{json:{toolCallId: call.id ?? '',patientName:String(args.patientName).trim(),phone:String(args.phone).trim(),appointmentDate:start.slice(0,10),start,end}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        96
+      ],
+      "name": "Parse Vapi Data",
+      "id": "76eccdd6-4d43-492c-b492-d2df27bbc4e6"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "huzaifas.back@gmail.com",
+          "mode": "list",
+          "cachedResultName": "huzaifas.back@gmail.com"
+        },
+        "eventId": "={{ $json.eventId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        0
+      ],
+      "name": "Delete an event",
+      "id": "ce822e6c-6d68-4f69-a9c4-e589a70fb3fc",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "uzyLoLwLBAqQihEd",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI",
+          "mode": "list",
+          "cachedResultName": "Appointment Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Appointment Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_rfMEHrfQDDJ4NSsuwU5jpqS3EDppL6hc2hlqJ2jsWI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Code in JavaScript - Match Appointment').first().json.row_number }}",
+            "Status": "Cancelled"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date of Birth",
+              "displayName": "Date of Birth",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Appointment",
+              "displayName": "Appointment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Provider",
+              "displayName": "Provider",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Start",
+              "displayName": "Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "End",
+              "displayName": "End",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        0
+      ],
+      "name": "Update row in sheet",
+      "id": "f2d11bc8-248a-4192-bda1-c42327781b4e",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ljpvfof2lthCCJPH",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({results:[{toolCallId: $(\"Parse Vapi Data\").first().json.toolCallId, result:\"Your appointment on \" + $(\"Parse Vapi Data\").first().json.appointmentDate + \" at \" + $(\"Parse Vapi Data\").first().json.start.slice(11,16) + \" has been successfully cancelled.\"}]}) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        0
+      ],
+      "name": "Respond to Webhook1",
+      "id": "6974a93c-68ca-49db-91d6-0aebeb9a8d5d"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Parse Vapi Data').first().json;\nconst rows = $('Get row(s) in sheet').all().map(x=>x.json).filter(x=>x['Full Name']);\nconst requestedStart = Date.parse(data.start);\nconst normalizePhone = v => String(v ?? '').replace(/\\D/g,'').replace(/^0+/, '');\nconst matchesSheet = rows.filter(row => {\n  const local = String(row['Start'] ?? '').trim().replace(' ','T');\n  const sheetTime = Date.parse(/[Zz]$|[+-]\\d{2}:\\d{2}$/.test(local) ? local : local+'+05:00');\n  return String(row['Full Name']??'').trim().toLowerCase() === data.patientName.toLowerCase()\n    && normalizePhone(row['Phone Number']) === normalizePhone(data.phone)\n    && sheetTime === requestedStart\n    && String(row['Status']??'').toLowerCase() !== 'cancelled';\n});\nif(matchesSheet.length !== 1) throw new Error(`Expected one exact active Sheet appointment, found ${matchesSheet.length}; no deletion.`);\nconst events = $('Get many events').all().map(x=>x.json);\nconst matches = events.filter(event => event.id && event.start?.dateTime &&\n  Date.parse(event.start.dateTime) === requestedStart &&\n  String(event.summary??'').toLowerCase().includes(data.patientName.toLowerCase()) &&\n  event.eventType !== 'birthday');\nif(matches.length !== 1) throw new Error(`Expected one exact Calendar appointment, found ${matches.length}; no deletion.`);\nreturn [{json:{eventId:matches[0].id,row_number:matchesSheet[0].row_number,patientName:data.patientName,phone:data.phone,start:data.start,end:data.end,toolCallId:data.toolCallId}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "name": "Code in JavaScript - Match Appointment",
+      "id": "8df8ccf8-ebc6-4701-aed5-bd34fce967cc"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Vapi Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Vapi Data": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript - Match Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete an event": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript - Match Appointment": {
+      "main": [
+        [
+          {
+            "node": "Delete an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8ddcf676-3dfa-4d0f-9976-e352d56297d2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2efb3ab5880506c84c611a1c2fad8bf5e19060a522c85089040bd4e31f59dc1e"
+  },
+  "nodeGroups": [],
+  "id": "FzYlyYnQkcTpC8AS",
+  "tags": []
+}
